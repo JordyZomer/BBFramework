@@ -40,7 +40,7 @@ Engagements can have many modules
 engagements can have one user
 	
 ---------------------------------------
-<code>
+
 Engagements:
 
 List engagements				- GET      /engagements
@@ -62,7 +62,7 @@ List users						- GET		/users
 Add User						- POST		/users
 Delete User						- DELETE 	/users/0
 Update User						- PUT		/users/0
-</code>
+
 
 -----------------------------------------------------------------------------
 
