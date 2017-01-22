@@ -1,0 +1,98 @@
+## Some examples of use:
+
+dusty@bb-devbox:~$ curl  -X GET http://localhost:8181/bbframework/api/v0.1/engagements
+{
+    "Engagements: ": []
+}
+dusty@bb-devbox:~$ curl  -X GET http://localhost:8181/bbframework/api/v0.1/engagement/0
+{
+    "Engagement: 0": {
+        "eng_desc": null,
+        "eng_id": null,
+        "eng_name": null,
+        "eng_user_id": null
+    }
+}
+dusty@bb-devbox:~$ curl  -X GET http://localhost:8181/bbframework/api/v0.1/engagement/1
+{
+    "Engagement: 1": {
+        "eng_desc": null,
+        "eng_id": null,
+        "eng_name": null,
+        "eng_user_id": null
+    }
+}
+dusty@bb-devbox:~$ curl  -X GET http://localhost:8181/bbframework/api/v0.1/users
+{
+    "Users: ": [
+        {
+            "password": "god2121",
+            "user_id": "3",
+            "username": "god"
+        },
+        {
+            "password": "god2ss121",
+            "user_id": "7",
+            "username": "ssgod"
+        },
+        {
+            "password": "god2ss1s21",
+            "user_id": "9",
+            "username": "ssgosd"
+        }
+    ]
+}
+dusty@bb-devbox:~$ curl  -X GET http://localhost:8181/bbframework/api/v0.1/user/1
+{
+    "User: ": {
+        "password": null,
+        "user_id": null,
+        "username": null
+    }
+}
+dusty@bb-devbox:~$ curl  -X GET http://localhost:8181/bbframework/api/v0.1/user/9
+{
+    "User: ": {
+        "password": "god2ss1s21",
+        "user_id": "9",
+        "username": "ssgosd"
+    }
+}
+dusty@bb-devbox:~$
+
+
+
+
+dusty@bb-devbox:~$  curl -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"eng_name":"SomeName", "eng_desc":"SomeDesc", "eng_user_id":"3"}' http://localhost:8181/bbframework/api/v0.1/engagements
+{
+    "Engagement Added: ": {
+        "eng_desc": "SomeDesc",
+        "eng_id": "4",
+        "eng_name": "SomeName",
+        "eng_user_id": "3"
+    }
+}
+dusty@bb-devbox:~$
+
+
+
+
+
+dusty@bb-devbox:~$ curl -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"username":"admin", "password":"god"}' http://localhost:8181/bbframework/api/v0.1/users
+{
+    "User Added: ": {
+        "password": "god",
+        "user_id": "10",
+        "username": "admin"
+    }
+}
+dusty@bb-devbox:~$
+
+
+
+dusty@bb-devbox:~$ curl  -X DELETE http://localhost:8181/bbframework/api/v0.1/engagement/4
+{
+    "Deleted: ": true
+}
+dusty@bb-devbox:~$
+
