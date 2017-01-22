@@ -10,6 +10,7 @@ class Engagements(Resource):
 		self.reqparse.add_argument('eng_desc', type=str, required=True, help="eng_desc missing", location='json')
 		self.reqparse.add_argument('eng_user_id', type=str, required=True, help="eng_user_id missing", location='json')
 		super(Engagements, self).__init__()
+
 	## Required to check if a new database entry is unique or not
 	## to avoid duplicates within the database and the id's going out of sync.
 	def is_unique(self, new_eng):
@@ -26,7 +27,10 @@ class Engagements(Resource):
 	## Get the complete list of enagements:
 	def get(self):
 		engs = models.Engagements.query.all()
-		return { 'Engagements: ' : marshal(engs, datastructures.engagement_fields) }
+		if engs:
+			return { "Engagements: " : marshal(engs, datastructures.engagement_fields) }
+		else:	
+			return { "Engagements: " : False }
 
 	## Create an engagement:
 	def post(self):
@@ -74,8 +78,10 @@ class Specific_Engagement(Resource):
 	## Request a specific engagement:
 	def get(self, eng_id):
 		s_eng = models.Engagements.query.get(eng_id)
-		eng_string = "Engagement: %s" % eng_id
-		return {eng_string : marshal(s_eng, datastructures.engagement_fields)}
+		if s_eng:
+			return { ("Engagement: %s" % eng_id) : marshal(s_eng, datastructures.engagement_fields)}
+		else:
+			return { "Engagement: " : False }
 
 	## Update engagement details:
 	def put(self, eng_id):	
@@ -133,13 +139,24 @@ class Users(Resource):
                 super(Users, self).__init__()
 
 	## Implement is_unique for users:
-	def is_unique(self):
-		pass
+	def is_unique(self, new_user):
+		is_unique = True
+		current_users = models.Users.query.all()
+		for u in current_users:
+			if new_user.username in u.username:
+				is_unique = False
+				break
+			else:
+				is_unique = True
+		return is_unique
 	
 	## Get a complete list of users:
         def get(self):
 		users = models.Users.query.all()
-                return {"Users: " : marshal(users, datastructures.user_fields)}
+		if users:
+	                return {"Users: " : marshal(users, datastructures.user_fields)}
+		else:
+			return {"Users: " : False }
 
 	## Create a user:
         def post(self):
@@ -156,18 +173,21 @@ class Users(Resource):
 
 		new_user = models.Users(username = username, password = password)
 
-		try:
-	                BBFrameworkDB.session.add(new_user)
-                        BBFrameworkDB.session.commit()
-                        return {'User Added: ' : marshal(new_user, datastructures.user_fields)}
-                except exc.IntegrityError as e:
-                        BBFrameworkDB.session.rollback()
-                        err = {'err_type' : type(e), 'err_desc' : e.args}
-                        return {"Error: " : marshal(err, datastructures.error_fields)}
-                except exc.OperationalError as e:
-                        BBFrameworkDB.session.rollback()
-                        err = {'err_type' : type(e), 'err_desc' : e.args}
-                        return {"Error: " : marshal(err, datastructures.error_fields)}
+		if self.is_unique(new_user):
+			try:
+		                BBFrameworkDB.session.add(new_user)
+                	        BBFrameworkDB.session.commit()
+	                        return {'User Added: ' : marshal(new_user, datastructures.user_fields)}
+        	        except exc.IntegrityError as e:
+                	        BBFrameworkDB.session.rollback()
+                        	err = {'err_type' : type(e), 'err_desc' : e.args}
+	                        return {"Error: " : marshal(err, datastructures.error_fields)}
+        	        except exc.OperationalError as e:
+                	        BBFrameworkDB.session.rollback()
+                        	err = {'err_type' : type(e), 'err_desc' : e.args}
+	                        return {"Error: " : marshal(err, datastructures.error_fields)}
+		else:
+			return {"Error: " : "The new user is a duplicate, duplicates are frowned upon!" }
 
 
 class Specific_User(Resource):
@@ -180,7 +200,10 @@ class Specific_User(Resource):
 	## List a specifc user:	
 	def get(self, user_id):
 		user = models.Users.query.get(user_id)
-		return {"User: " : marshal(user, datastructures.user_fields)}
+		if user:
+			return {"User: " : marshal(user, datastructures.user_fields)}
+		else:
+			return {"User: " : False }
 
 	## Update user record:
 	def put(self, user_id):
