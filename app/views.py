@@ -66,14 +66,14 @@ class Engagements(Resource):
 
 
 ## Specific Engagement:
-class Specific_Engagement(Resource):
+class Engagement(Resource):
         ## Parse any parameters we require:
 	def __init__(self):
 		self.reqparse = reqparse.RequestParser()
 		self.reqparse.add_argument('eng_name', type=str, required=True, help="eng_name missing", location='json')
                 self.reqparse.add_argument('eng_desc', type=str, required=True, help="eng_desc missing", location='json')
                 self.reqparse.add_argument('eng_user_id', type=str, required=True, help="eng_user_id missing", location='json')
-                super(Specific_Engagement, self).__init__()
+                super(Engagement, self).__init__()
 
 	## Request a specific engagement:
 	def get(self, eng_id):
@@ -122,7 +122,7 @@ class Modules(Resource):
                 return "Creates a new module assigned to an engagement: %s<BR />" % eng_id
 
 ## Specific Module
-class Specific_Module(Resource):
+class Module(Resource):
 	def get(self, eng_id, module_id):
 		return "List specific engagement: %s, specific module: %s" % (eng_id, module_id)
 	def put(self, eng_id, module_id):
@@ -190,12 +190,12 @@ class Users(Resource):
 			return {"Error: " : "The new user is a duplicate, duplicates are frowned upon!" }
 
 
-class Specific_User(Resource):
+class User(Resource):
 	def __init__(self):
                 self.reqparse = reqparse.RequestParser()
                 self.reqparse.add_argument('username', type=str, required=True, help="username missing", location='json')
                 self.reqparse.add_argument('password', type=str, required=True, help="password missing", location='json')
-                super(Specific_User, self).__init__()
+                super(User, self).__init__()
 
 	## List a specifc user:	
 	def get(self, user_id):
@@ -244,14 +244,14 @@ ROOT_URL = BBFrameworkAPP.config['API_ROOT_URL']
 ## Engagements route:
 BBFrameworkAPI.add_resource(Engagements, ROOT_URL + 'engagements', endpoint='engagements')
 ## Specific Engagement route:
-BBFrameworkAPI.add_resource(Specific_Engagement, ROOT_URL + 'engagement/<int:eng_id>', endpoint='engagement')
+BBFrameworkAPI.add_resource(Engagement, ROOT_URL + 'engagement/<int:eng_id>', endpoint='engagement')
 ## Engagements Modules route:
 BBFrameworkAPI.add_resource(Modules, ROOT_URL + 'engagement/<int:eng_id>/modules', endpoint='modules')
 ## Specific Engagements Modules route:
-BBFrameworkAPI.add_resource(Specific_Module, ROOT_URL + 'engagement/<int:eng_id>/module/<int:module_id>', endpoint='module')
+BBFrameworkAPI.add_resource(Module, ROOT_URL + 'engagement/<int:eng_id>/module/<int:module_id>', endpoint='module')
 ## Users route:
 BBFrameworkAPI.add_resource(Users, ROOT_URL + 'users', endpoint='users')
 ## Specific User Route:
-BBFrameworkAPI.add_resource(Specific_User, ROOT_URL + 'user/<int:user_id>', endpoint='user')
+BBFrameworkAPI.add_resource(User, ROOT_URL + 'user/<int:user_id>', endpoint='user')
 
 
