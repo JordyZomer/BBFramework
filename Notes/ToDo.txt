@@ -1,0 +1,11 @@
+To Do List:
+==========
+
+1) Implement Module/Modules Class
+
+2) Token resource should only allow access via username and password
+   and not via the token, as if the token gets compromised an attacker
+   could just use the token to get another token and so on. (I feel this is
+   the only security issue using this type of auth) That and it needs to be TLS secured.
+
+3) Implement SSL: how to server via HTTPS: http://flask.pocoo.org/snippets/111/

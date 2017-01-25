@@ -1,4 +1,4 @@
-from app import BBFrameworkDB
+from app import BBFrameworkAPP, BBFrameworkDB, pwd_context, Serializer, BadSignature, SignatureExpired
 
 
 
@@ -7,10 +7,33 @@ class Users(BBFrameworkDB.Model):
 
 	user_id = BBFrameworkDB.Column(BBFrameworkDB.Integer, primary_key=True)
 	username = BBFrameworkDB.Column(BBFrameworkDB.String(64), index=True, unique=True)
-	password = BBFrameworkDB.Column(BBFrameworkDB.String(100), index=True)
+	password_hash = BBFrameworkDB.Column(BBFrameworkDB.String(128))
 	engagements = BBFrameworkDB.relationship('Engagements', backref='user_engagements', lazy='dynamic')
 	modules     = BBFrameworkDB.relationship('Modules', backref='user_modules', lazy='dynamic')
+	
+	
+	def generate_auth_token(self, expiration = 600):
+		s = Serializer(BBFrameworkAPP.config['SECRET_KEY'], expires_in = expiration)
+		return s.dumps({'user_id' : self.user_id})
 
+	@staticmethod
+	def verify_auth_token(token):
+		s = Serializer(BBFrameworkAPP.config['SECRET_KEY'])
+		try:
+			data = s.loads(token)
+		except SignatureExpired:
+			return None # valid token, but expired.
+		except BadSignature:
+			return None # Invalid token
+		user = Users.query.get(data['user_id'])
+		return user
+	
+	def hash_password(self, password):
+		self.password_hash = pwd_context.encrypt(password)
+		
+	def verify_password(self, password):
+		return pwd_context.verify(password, self.password_hash)
+	
 	def __repr__(self):
 		return "<User: %r>" % (self.username)
 

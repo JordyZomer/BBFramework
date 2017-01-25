@@ -17,7 +17,7 @@ module_fields = {
 user_fields = {
         'user_id' : fields.String,
         'username' : fields.String,
-        'password' : fields.String,
+#        'password_hash' : fields.String,
 }
 
 error_fields = {
