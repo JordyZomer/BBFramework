@@ -19,7 +19,7 @@ class Engagements(Resource):
 		if engs:
 			return jsonify({ "Engagements: " : marshal(engs, datastructures.engagement_fields) })
 		else:	
-			return jsonif({ "Engagements: " : False })
+			return jsonify({ "Engagements: " : False })
 
 	## Create an engagement:
 	@auth.login_required
