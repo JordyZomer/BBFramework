@@ -172,6 +172,7 @@ class Users(Resource):
                         err = {'err_type' : type(e), 'err_desc' : e.args}
                         return jsonify({"Error: " : marshal(err, datastructures.error_fields)})
 
+<<<<<<< HEAD
                 except exc.OperationalError as e:
                         BBFrameworkDB.session.rollback()
                         err = {'err_type' : type(e), 'err_desc' : e.args}
@@ -179,6 +180,8 @@ class Users(Resource):
 
 			 	
 	
+=======
+>>>>>>> c20483a8caf44f9003394f52cbb6fe96ffd562c6
 class User(Resource):
 	def __init__(self):
                 self.reqparse = reqparse.RequestParser()
@@ -262,7 +265,10 @@ BBFrameworkAPI.add_resource(Module, ROOT_URL + 'engagement/<int:eng_id>/module/<
 BBFrameworkAPI.add_resource(Users, ROOT_URL + 'users', endpoint='users')
 ## Specific User Route:
 BBFrameworkAPI.add_resource(User, ROOT_URL + 'user/<int:user_id>', endpoint='user')
+<<<<<<< HEAD
 ## Token Route
 BBFrameworkAPI.add_resource(Token, ROOT_URL + 'token', endpoint='token')
+=======
+>>>>>>> c20483a8caf44f9003394f52cbb6fe96ffd562c6
 
 
