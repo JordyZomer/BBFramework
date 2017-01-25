@@ -9,15 +9,15 @@ class Engagements(Resource):
 		self.reqparse = reqparse.RequestParser()
 		self.reqparse.add_argument('eng_name', type=str, required=True, help="eng_name missing", location='json')
 		self.reqparse.add_argument('eng_desc', type=str, required=True, help="eng_desc missing", location='json')
-		self.reqparse.add_argument('eng_user_id', type=str, required=True, help="eng_user_id missing", location='json')
+		#self.reqparse.add_argument('eng_user_id', type=str, required=True, help="eng_user_id missing", location='json')
 		super(Engagements, self).__init__()
 
 	## Get the complete list of enagements:
         @auth.login_required
 	def get(self):
-		engs = models.Engagements.query.all()
-		if engs:
-			return jsonify({ "Engagements: " : marshal(engs, datastructures.engagement_fields) })
+		engagements = models.Engagements.query.all()
+		if engagements:
+			return jsonify({ "Engagements: " : marshal(engagements, datastructures.engagement_fields) })
 		else:	
 			return jsonify({ "Engagements: " : False })
 
@@ -31,16 +31,15 @@ class Engagements(Resource):
 		
 		e_name = args['eng_name']
 		e_desc = args['eng_desc']
-		e_u_id = args['eng_user_id']
+		e_u_id = g.user.user_id
 		
 		if not e_name or not e_desc or not e_u_id:
-                        #return {"Error: " : "Either of e_name, e_desc or e_u_id values is missing"}
-			abort(400)
+			return jsonify({"Error: " : "Parameter values missing."})
 	
 		if models.Engagements.query.filter_by(eng_name = e_name).first():
-			abort(400)
+			return jsonify({"Error: " : "Duplicate Engagement"})			
 	
-		new_engagement = models.Engagements(eng_name = args['eng_name'], eng_desc = args['eng_desc'], eng_user_id = args['eng_user_id'])
+		new_engagement = models.Engagements(eng_name = e_name, eng_desc = e_desc, eng_user_id = g.user.user_id)
 
 		try:
 			BBFrameworkDB.session.add(new_engagement)
@@ -172,7 +171,6 @@ class Users(Resource):
                         err = {'err_type' : type(e), 'err_desc' : e.args}
                         return jsonify({"Error: " : marshal(err, datastructures.error_fields)})
 
-<<<<<<< HEAD
                 except exc.OperationalError as e:
                         BBFrameworkDB.session.rollback()
                         err = {'err_type' : type(e), 'err_desc' : e.args}
@@ -180,8 +178,6 @@ class Users(Resource):
 
 			 	
 	
-=======
->>>>>>> c20483a8caf44f9003394f52cbb6fe96ffd562c6
 class User(Resource):
 	def __init__(self):
                 self.reqparse = reqparse.RequestParser()
@@ -265,10 +261,5 @@ BBFrameworkAPI.add_resource(Module, ROOT_URL + 'engagement/<int:eng_id>/module/<
 BBFrameworkAPI.add_resource(Users, ROOT_URL + 'users', endpoint='users')
 ## Specific User Route:
 BBFrameworkAPI.add_resource(User, ROOT_URL + 'user/<int:user_id>', endpoint='user')
-<<<<<<< HEAD
 ## Token Route
 BBFrameworkAPI.add_resource(Token, ROOT_URL + 'token', endpoint='token')
-=======
->>>>>>> c20483a8caf44f9003394f52cbb6fe96ffd562c6
-
-
