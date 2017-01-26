@@ -1,19 +1,14 @@
 from app import BBFrameworkAPP, BBFrameworkAPI, BBFrameworkDB, Resource, reqparse, models, marshal, fields, datastructures, exc, pwd_context,abort, auth, g, jsonify
 
-## BBFrameworkAPP Classes
-
-## Engagements:
 class Engagements(Resource):
-	## Parse any parameters we require:
+	decorators = [auth.login_required]
+
 	def __init__(self):
 		self.reqparse = reqparse.RequestParser()
 		self.reqparse.add_argument('eng_name', type=str, required=True, help="eng_name missing", location='json')
 		self.reqparse.add_argument('eng_desc', type=str, required=True, help="eng_desc missing", location='json')
-		#self.reqparse.add_argument('eng_user_id', type=str, required=True, help="eng_user_id missing", location='json')
 		super(Engagements, self).__init__()
 
-	## Get the complete list of enagements:
-        @auth.login_required
 	def get(self):
 		engagements = models.Engagements.query.all()
 		if engagements:
@@ -21,8 +16,6 @@ class Engagements(Resource):
 		else:	
 			return jsonify({ "Engagements: " : False })
 
-	## Create an engagement:
-	@auth.login_required
 	def post(self):
 		try:
 	                args = self.reqparse.parse_args()
@@ -54,9 +47,9 @@ class Engagements(Resource):
                         err = {'err_type' : type(e), 'err_desc' : e.args}
                         return jsonify({"Error: " : marshal(err, datastructures.error_fields)})
 		
-## Specific Engagement:
 class Engagement(Resource):
-        ## Parse any parameters we require:
+        decorators = [auth.login_required]
+
 	def __init__(self):
 		self.reqparse = reqparse.RequestParser()
 		self.reqparse.add_argument('eng_name', type=str, required=True, help="eng_name missing", location='json')
@@ -64,8 +57,6 @@ class Engagement(Resource):
                 self.reqparse.add_argument('eng_user_id', type=str, required=True, help="eng_user_id missing", location='json')
                 super(Engagement, self).__init__()
 
-	## Request a specific engagement:
-	@auth.login_required
 	def get(self, eng_id):
 		s_eng = models.Engagements.query.get(eng_id)
 		if s_eng:
@@ -74,7 +65,9 @@ class Engagement(Resource):
 			return jsonify({ "Engagement: " : False })
 
 	## Update engagement details:
-	@auth.login_required
+	## perhaps add another db column called updates
+	## if a user updates an engagement, we can add that user id to the updates colum,
+	## so we have created by <user> and last updated by <user>
 	def put(self, eng_id):	
 		## Check JSON data sent by client is correct.
 		try:
@@ -88,7 +81,7 @@ class Engagement(Resource):
                 e_u_id = args['eng_user_id']
 
                 if not e_name or not e_desc or not e_u_id:
-                        return jsonif({"Error: " : "One of (e_name, e_desc or e_u_id values is missing"})
+                        return jsonify({"Error: " : "One of (e_name, e_desc or e_u_id values is missing"})
 
 		## Update engagement:
 		tmp_engagement = models.Engagements.query.get(eng_id)
@@ -99,8 +92,6 @@ class Engagement(Resource):
 
 		return jsonify({"Updated Engagement: " : marshal(tmp_engagement, datastructures.engagement_fields)})
 
-	## Delete an engagement:
-        @auth.login_required	
 	def delete(self, eng_id):	
 		if (models.Engagements.query.filter_by(eng_id = eng_id).delete()):
 			BBFrameworkDB.session.commit()
@@ -108,14 +99,12 @@ class Engagement(Resource):
 		else:
 			return jsonify({"Deleted: " : False })
 
-## Modules:
 class Modules(Resource):
         def get(self, eng_id):
                 return "Lists all modules assigned to an engagement: %s<BR />" % eng_id
         def post(self, eng_id):
                 return "Creates a new module assigned to an engagement: %s<BR />" % eng_id
 
-## Specific Module
 class Module(Resource):
 	def get(self, eng_id, module_id):
 		return "List specific engagement: %s, specific module: %s" % (eng_id, module_id)
@@ -124,16 +113,15 @@ class Module(Resource):
 	def delete(self, eng_id, module_id):
 		return "Delete a specific engagement: %s, specific module: %s" % (eng_id, module_id)
 
-## Users:
 class Users(Resource):
+        decorators = [auth.login_required]
+
         def __init__(self):
 	        self.reqparse = reqparse.RequestParser()
                 self.reqparse.add_argument('username', type=str, required=True, help="username missing", location='json')
                 self.reqparse.add_argument('password', type=str, required=True, help="password missing", location='json')
                 super(Users, self).__init__()
 
-	## Get a complete list of users:
-	@auth.login_required
         def get(self):
 		users = models.Users.query.all()
 		if users:
@@ -142,7 +130,6 @@ class Users(Resource):
 			return jsonify({"Users: " : False })
 
 		
-	@auth.login_required
 	def post(self):
 		try:
                        	args = self.reqparse.parse_args()
@@ -175,18 +162,17 @@ class Users(Resource):
                         BBFrameworkDB.session.rollback()
                         err = {'err_type' : type(e), 'err_desc' : e.args}
                         return jsonify({"Error: " : marshal(err, datastructures.error_fields)})
-
 			 	
 	
 class User(Resource):
+        decorators = [auth.login_required]
+
 	def __init__(self):
                 self.reqparse = reqparse.RequestParser()
                 self.reqparse.add_argument('username', type=str, required=True, help="username missing", location='json')
                 self.reqparse.add_argument('password', type=str, required=True, help="password missing", location='json')
                 super(User, self).__init__()
 
-	## List a specifc user:
-	@auth.login_required	
 	def get(self, user_id):
 		user = models.Users.query.get(user_id)
 		if user:
@@ -194,22 +180,18 @@ class User(Resource):
 		else:
 			return jsonify({"User: " : False })
 
-	## Update user record:
-	@auth.login_required
 	def put(self, user_id):
 		try:
 			args = self.reqparse.parse_args()
 		except:
 			return {"Error: " : "Invalid JSON data sent."}
 
-		## check the values are not empty:
 		username = args['username']
 		password = args['password']
 
 		if not username or not password or not user_id:
 			return jsonify({"Error: " : "Either the username, password or user_id value is missing."})
 
-		## Update user:
 		tmp_user = models.Users.query.get(user_id)
 		tmp_user.username = username
 		tmp_user.password = password
@@ -218,8 +200,6 @@ class User(Resource):
 
 		return jsonify({"Updated User: " : marshal(tmp_user, datastructures.user_fields)})
 
-	## Delete a specific user:
-	@auth.login_required
 	def delete(self, user_id):
 		if (models.Users.query.filter_by(user_id = user_id).delete()):
 			BBFrameworkDB.session.commit()
@@ -228,10 +208,18 @@ class User(Resource):
 			return jsonify({"Deleted: " : False })
 
 class Token(Resource):
-	@auth.login_required
 	def get(self):
 		token = g.user.generate_auth_token()
 		return jsonify({"Token: " : token.decode('ascii')})
+
+
+
+
+## Auth functions
+
+@auth.error_handler
+def unauthorized():
+	return jsonify({"Message: " : "Unauthorized Access, please authenticate!"}), 403
 
 @auth.verify_password
 def verify_password(username_or_token, password):

@@ -9,3 +9,10 @@ To Do List:
    the only security issue using this type of auth) That and it needs to be TLS secured.
 
 3) Implement SSL: how to server via HTTPS: http://flask.pocoo.org/snippets/111/
+
+4) When updating a resource e.g. engagement/1 we should have another db column so:
+
+eng_name | eng_desc | eng_user_id (created by) | update_user_id (last updated by)
+
+that way when we issue a PUT request to a resource to update it we can figure out what user updated it without
+overwritting the created by user.
