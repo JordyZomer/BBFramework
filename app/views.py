@@ -217,24 +217,6 @@ class Token(Resource):
 
 
 
-## Auth functions
-
-@auth.error_handler
-def unauthorized():
-	return jsonify({"Message: " : "Unauthorized Access, please authenticate!"}), 403
-
-@auth.verify_password
-def verify_password(username_or_token, password):
-	# first try to auth by token
-	user = models.Users.verify_auth_token(username_or_token)
-	if not user:
-		# try to auth wit username/password:
-		user = models.Users.query.filter_by(username = username_or_token).first()
-		if not user or not user.verify_password(password):
-			return False
-	g.user = user
-	return True
-
 
 ## Register routes
 ROOT_URL = BBFrameworkAPP.config['API_ROOT_URL']

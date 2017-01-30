@@ -1,4 +1,4 @@
-from app import BBFrameworkAPP, BBFrameworkDB, pwd_context, Serializer, BadSignature, SignatureExpired, auth
+from app import BBFrameworkAPP, BBFrameworkDB, pwd_context, Serializer, BadSignature, SignatureExpired, auth, jsonify, g
 
 
 
@@ -31,11 +31,30 @@ class Users(BBFrameworkDB.Model):
 	def hash_password(self, password):
 		self.password_hash = pwd_context.encrypt(password)
 		
-	def verify_password(self, password):
+	def verify_password_only(self, password):
 		return pwd_context.verify(password, self.password_hash)
+
+	@auth.error_handler
+	def unauthorized():
+        	return jsonify({"Message: " : "Unauthorized Access, please authenticate!"}), 403
+
+	@auth.verify_password # verify_password
+	def verify_password(username_or_token, password):
+	       	# first try to auth by token
+	        user = Users.verify_auth_token(username_or_token)
+	        if not user:
+	                # try to auth wit username/password:
+	                user = Users.query.filter_by(username = username_or_token).first()
+	                if not user or not user.verify_password_only(password):
+	                        return False
+        	g.user = user
+	        return True
 
 	def __repr__(self):
 		return "<User: %r>" % (self.username)
+
+
+
 
 
 
