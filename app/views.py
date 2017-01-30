@@ -37,7 +37,7 @@ class Engagements(Resource):
 		try:
 			BBFrameworkDB.session.add(new_engagement)
 			BBFrameworkDB.session.commit()
-			return jsonify({'Engagement Added: ' : marshal(new_engagement, datastructures.engagement_fields)})
+			return jsonify({'Engagement Added: ' : marshal(new_engagement, datastructures.engagement_fields)}, 201)
 		except exc.IntegrityError as e:
 			BBFrameworkDB.session.rollback()
 			err = {'err_type' : type(e), 'err_desc' : e.args}
@@ -114,7 +114,7 @@ class Module(Resource):
 		return "Delete a specific engagement: %s, specific module: %s" % (eng_id, module_id)
 
 class Users(Resource):
-        decorators = [auth.login_required]
+#        decorators = [auth.login_required]
 
         def __init__(self):
 	        self.reqparse = reqparse.RequestParser()
@@ -208,6 +208,8 @@ class User(Resource):
 			return jsonify({"Deleted: " : False })
 
 class Token(Resource):
+	decorators = [auth.login_required]
+
 	def get(self):
 		token = g.user.generate_auth_token()
 		return jsonify({"Token: " : token.decode('ascii')})
